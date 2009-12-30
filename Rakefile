@@ -40,14 +40,22 @@ when :pure_ruby
   desc "Default Task"
   task :default => :test_all
 when :java
+  # jgem install rake-compile
+  require 'rake/javaextensiontask'
+  
   desc "Default Task"
-  task :default => ['build:java', :test_all]
-end
-
-# Native Compile Tasks -----------------------------------------------
-
-namespace :build do
-  task :java do
+  task :default => ['compile:java', :test_all]
+  
+  Rake::JavaExtensionTask.new do |ext|
+      ext.name = 'native_builder'               # indicate the name of the extension.
+      ext.ext_dir = 'ext/java/src'              # search for 'hello_world' inside it.
+      ext.lib_dir = 'lib/builder/jvm'          # put binaries into this folder.
+      # ext.config_script = 'custom_extconf.rb' # use instead of 'extconf.rb' default
+      # ext.tmp_dir = 'tmp'                     # temporary folder used during compilation.
+      # ext.source_pattern = "*.{c,cpp}"        # monitor file changes to allow simple rebuild.
+      # ext.config_options << '--with-foo'      # supply additional configure options to config script.
+      # ext.gem_spec = spec                     # optional indicate which gem specification
+                                                # will be used to based on.
   end
 end
 

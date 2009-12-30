@@ -11,3 +11,5 @@
 
 require 'builder/xmlmarkup'
 require 'builder/xmlevents'
+
+require 'builder/jvm' if RUBY_PLATFORM =~ /java/
