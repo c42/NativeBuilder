@@ -10,6 +10,9 @@
 require 'rake/clean'
 require 'rake/testtask'
 require 'rake/rdoctask'
+require 'spec'
+require 'spec/rake/spectask'
+
 begin
   require 'rubygems'
   require 'rake/gempackagetask'
@@ -62,10 +65,18 @@ end
 # Test Tasks ---------------------------------------------------------
 
 desc "Run all tests"
-task :test_all => [:test_units]
+task :test_all => ['spec:unit', :test_units]
 task :ta => [:test_all]
 
 task :tu => [:test_units]
+
+namespace :spec do
+  desc "Run all unit specs"
+  Spec::Rake::SpecTask.new(:unit) do |task|
+    task.spec_files = FileList['spec/native_builder/**/*_spec.rb']
+    # task.spec_opts = ['--options', 'spec/spec.opts']
+  end
+end
 
 Rake::TestTask.new("test_units") do |t|
   t.test_files = FileList['test/test*.rb']
@@ -322,4 +333,34 @@ task :install_jamis_template do
   install "doc/jamis.rb", dest_dir, :verbose => true
 end
 
+def build_xml(xml)
+  xml.instruct!
+  xml.nodes do
+    100.times do |i|
+      xml.node(:id => i) do
+        xml.metadata(:name => "Dingo")
+        xml.comment!("moo-cow")
+        xml.cdata!("yee-haw")
+        xml << "content for the stuff"
+      end
+    end
+  end
+end
+
+namespace :bm do  
+  task :env do
+    $LOAD_PATH.unshift File.dirname(__FILE__) + '/lib'
+    require "benchmark"
+    require "builder/xmlmarkup"
+  end
+
+  desc "Runs a head-to-head benchmark."
+  task :one => ['bm:env'] do
+    tests = (ENV["COUNT"] || "100").to_i
+
+    Benchmark.bmbm(15) do |x|
+      x.report("builder") { tests.times { build_xml(Builder::XmlMarkup.new) } }
+    end
+  end
+end
 require 'scripts/publish'

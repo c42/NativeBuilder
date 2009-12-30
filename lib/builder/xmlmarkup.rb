@@ -11,7 +11,7 @@
 # Provide a flexible and easy to use Builder for creating XML markup.
 # See XmlBuilder for usage details.
 
-require 'builder/xmlbase'
+require "builder/xmlbase"
 
 module Builder
 

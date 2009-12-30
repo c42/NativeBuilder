@@ -9,7 +9,7 @@
 # above copyright notice is included.
 #++
 
-require 'builder/xmlmarkup'
-require 'builder/xmlevents'
+require "#{File.dirname(__FILE__)}/builder/xmlmarkup"
+require "#{File.dirname(__FILE__)}/builder/xmlevents"
 
-require 'builder/jvm' if RUBY_PLATFORM =~ /java/
+require "#{File.dirname(__FILE__)}/builder/jvm" if RUBY_PLATFORM =~ /java/

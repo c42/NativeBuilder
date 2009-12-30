@@ -53,6 +53,10 @@ class Object
   def another_late_addition
     4321
   end
+  
+  def given_block(&block)
+    block.call
+  end   
 end
 
 # Introduce some late methods by inclusion.
@@ -156,16 +160,10 @@ class TestBlankSlate < Test::Unit::TestCase
   end
 
   def test_revealing_previously_hidden_methods_are_callable_with_block
-    Object.class_eval <<-EOS
-      def given_block(&block)
-        block
-      end   
-    EOS
-  
     with_given_block = Class.new(BlankSlate) do
       reveal :given_block
     end
-    assert_not_nil with_given_block.new.given_block {}
+    assert_equal 1, with_given_block.new.given_block {1}
   end
 
   def test_revealing_a_hidden_method_twice_is_ok
