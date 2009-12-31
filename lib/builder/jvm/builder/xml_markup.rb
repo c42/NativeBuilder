@@ -25,5 +25,20 @@ module Builder
     def target!
       @target.__class__ == JVM::XmlMarkup ? @target.toString : @target
     end
+    
+    def _insert_attributes(attrs, order=[])
+      return if attrs.nil?
+      stringified_quoted_attrs = attrs
+      # Ensure string sanitising happens just once
+      if @target.__class__ != self.__class__
+        stringified_quoted_attrs = attrs.inject({}) do |hash, tuple| 
+          hash[tuple.first.to_s] = _attr_value(tuple.last)
+          hash
+        end
+        order.map!{|item| item.to_s }
+      end
+      @target._insert_attributes(stringified_quoted_attrs, order)
+      attrs
+    end
   end
 end
