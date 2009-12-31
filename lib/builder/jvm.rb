@@ -7,4 +7,5 @@ module Builder
   end
 end
 
-require "#{File.dirname(__FILE__)}/jvm/xml_markup"
+require "#{File.dirname(__FILE__)}/jvm/xml_markup_extensions"
+require "#{File.dirname(__FILE__)}/jvm/builder"

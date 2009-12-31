@@ -73,7 +73,7 @@ task :tu => [:test_units]
 namespace :spec do
   desc "Run all unit specs"
   Spec::Rake::SpecTask.new(:unit) do |task|
-    task.spec_files = FileList['spec/native_builder/**/*_spec.rb']
+    task.spec_files = FileList['spec/builder/**/*_spec.rb']
     # task.spec_opts = ['--options', 'spec/spec.opts']
   end
 end
