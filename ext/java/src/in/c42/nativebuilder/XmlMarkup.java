@@ -1,13 +1,19 @@
 package in.c42.nativebuilder;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.jruby.RubySymbol;
 
-class XmlMarkup {
+import java.util.*;
+
+class XmlMarkup extends XmlBase {
     private StringBuilder target;
 
+    public XmlMarkup() {
+        super();
+        this.target = new StringBuilder();
+    }
+
     public XmlMarkup(String target) {
+        super();
         this.target = new StringBuilder(target);
     }
 
@@ -21,30 +27,52 @@ class XmlMarkup {
         return this;
     }
 
-    public void _insert_attributes(Map<String, String> attrs, List<String> order) {
-        if (attrs == null) {
-            return;
+    public String _attr_value(Object symbolOrString) {
+        if (symbolOrString instanceof RubySymbol) {
+            return ((RubySymbol) symbolOrString).asJavaString();
+        } else {
+            return _escape_quotes(symbolOrString.toString());
         }
+    }
 
-        for (String anOrder : order) {
-            String k = anOrder;
-            String v = attrs.get(k);
+
+    public void _insert_attributes(Map<Object, Object> attrs) {
+        _insert_attributes(attrs, new ArrayList<Object>());
+    }
+    
+    public void _insert_attributes(Map<Object, Object> attrs, List<Object> order) {
+        if(attrs == null) return;
+
+        for (Object k : order) {
+            Object v = attrs.get(k);
             if (v != null) {
-                target.append(" ").append(k).append("=").append("\"").append(v).append("\"");
+                target.append(" ").append(k.toString()).append("=").append("\"").append(_attr_value(v)).append("\"");
             }
         }
 
-        Set<String> pendingKeys = attrs.keySet();
+        Set<Object> pendingKeys = attrs.keySet();
         pendingKeys.removeAll(order);
-        for (String k : pendingKeys) {
-            target.append(" ").append(k).append("=").append("\"").append(attrs.get(k)).append("\"");
+        for (Object k : pendingKeys) {
+            Object v = attrs.get(k);
+            target.append(" ").append(k.toString()).append("=").append("\"").append(_attr_value(v)).append("\"");
         }
-//        order.each do |k|
-//          v = attrs[k]
-//          @target << %{ #{k}="#{_attr_value(v)}"} if v # " WART
+
+//        def _insert_attributes(attrs, order=[])
+//          return if attrs.nil?
+//          order.each do |k|
+//            v = attrs[k]
+//            @target << %{ #{k}="#{_attr_value(v)}"} if v # " WART
+//          end
+//          attrs.each do |k, v|
+//            @target << %{ #{k}="#{_attr_value(v)}"} unless order.member?(k) # " WART
+//          end
 //        end
-//        attrs.each do |k, v|
-//          @target << %{ #{k}="#{_attr_value(v)}"} unless order.member?(k) # " WART
-//        end
+    }
+
+    public String _escape_quotes(String string) {
+        // I'm maintaining the same methods as Ruby Builder for
+        // consistency; however _escape also takes care of escaping
+        // quotes.
+        return _escape(string);
     }
 }

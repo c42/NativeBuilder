@@ -2,6 +2,31 @@ require File.dirname(__FILE__) + '/../../../spec_helper'
 
 module Builder
   describe XmlMarkup, 'under JRuby' do
+    describe JVM::XmlMarkup do
+      it "should know how to convert symbols to strings" do
+        JVM::XmlMarkup.new._attr_value(:ooga).should == 'ooga'
+        JVM::XmlMarkup.new._attr_value('ooga').should == 'ooga'
+      end
+      
+      it "should know how to insert attributes given symbols" do
+        builder = JVM::XmlMarkup.new
+        builder._insert_attributes({:ooga => :booga, :foo => :bar}, [:ooga, :foo])
+        builder.to_s.should == " ooga=\"booga\" foo=\"bar\""
+      end
+
+      it "should know how to insert attributes given strings" do  
+        builder = JVM::XmlMarkup.new("")
+        builder._insert_attributes({'ooga' => 'booga', 'foo' => 'bar'}, ['ooga', 'foo'])
+        builder.to_s.should == " ooga=\"booga\" foo=\"bar\""
+      end
+      
+      it "should know how to insert attributes given integers" do  
+        builder = JVM::XmlMarkup.new("")
+        builder._insert_attributes({'id' => 1})
+        builder.to_s.should == " id=\"1\""
+      end
+    end
+    
     it "should expose #class as #__class__" do
       BlankSlate.instance_variable_get('@hidden_methods').keys.should include(:class)
       XmlMarkup.new.__class__.should == XmlMarkup
@@ -74,13 +99,13 @@ module Builder
       builder.target!.should == "<ooga ayyo=\"machcha\">"
     end
     
-    it "test_mixed_attribute_quoting_with_nested_builders" do
+    it "should test_mixed_attribute_quoting_with_nested_builders" do
       xml = Builder::XmlMarkup.new
       x = Builder::XmlMarkup.new(:target => xml)
       xml.ref(:id=>:"H&amp;R") {
         x.element(:tag=>"Long&Short")
       }
       xml.target!.should == "<ref id=\"H&amp;R\"><element tag=\"Long&amp;Short\"/></ref>"
-    end
+    end    
   end
 end

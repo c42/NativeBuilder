@@ -44,7 +44,8 @@ when :pure_ruby
   task :default => :test_all
 when :java
   # jgem install rake-compile
-  require 'rake/javaextensiontask'
+  require "#{File.dirname(__FILE__)}/../rake-compiler/lib/rake/javaextensiontask"
+  # require "rake/javaextensiontask"
   
   desc "Default Task"
   task :default => ['compile:java', :test_all]
@@ -52,7 +53,8 @@ when :java
   Rake::JavaExtensionTask.new do |ext|
       ext.name = 'native_builder'               # indicate the name of the extension.
       ext.ext_dir = 'ext/java/src'              # search for 'hello_world' inside it.
-      ext.lib_dir = 'lib/builder/jvm'          # put binaries into this folder.
+      ext.lib_dir = 'lib/builder/jvm'           # put binaries into this folder.
+      ext.vendored_jars = Dir['ext/java/lib/*.jar']
       # ext.config_script = 'custom_extconf.rb' # use instead of 'extconf.rb' default
       # ext.tmp_dir = 'tmp'                     # temporary folder used during compilation.
       # ext.source_pattern = "*.{c,cpp}"        # monitor file changes to allow simple rebuild.
@@ -337,7 +339,7 @@ def build_xml(xml)
   xml.instruct!
   xml.nodes do
     100.times do |i|
-      xml.node(:id => i) do
+      xml.node(:id => i.to_s) do
         xml.metadata(:name => "Dingo")
         xml.comment!("moo-cow")
         xml.cdata!("yee-haw")
@@ -356,10 +358,17 @@ namespace :bm do
 
   desc "Runs a head-to-head benchmark."
   task :one => ['bm:env'] do
-    tests = (ENV["COUNT"] || "100").to_i
+    tests = (ENV["COUNT"] || "300").to_i
 
     Benchmark.bmbm(15) do |x|
-      x.report("builder") { tests.times { build_xml(Builder::XmlMarkup.new) } }
+      x.report("builder without native java") { tests.times { build_xml(Builder::XmlMarkup.new) } }
+    end
+    
+    if RUBY_PLATFORM =~ /java/
+      require "#{File.dirname(__FILE__)}/lib/builder/jvm"
+      Benchmark.bmbm(15) do |x|
+        x.report("builder with native java") { tests.times { build_xml(Builder::XmlMarkup.new) } }
+      end
     end
   end
 end

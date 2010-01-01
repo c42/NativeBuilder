@@ -11,5 +11,3 @@
 
 require "#{File.dirname(__FILE__)}/builder/xmlmarkup"
 require "#{File.dirname(__FILE__)}/builder/xmlevents"
-
-require "#{File.dirname(__FILE__)}/builder/jvm" if RUBY_PLATFORM =~ /java/
