@@ -2,18 +2,24 @@ package in.c42.nativebuilder;
 
 import org.jruby.RubySymbol;
 
+import java.io.IOException;
 import java.util.*;
 
-class XmlMarkup extends XmlBase {
+class XmlMarkup extends XmlBase  {
     private StringBuilder target;
 
-    public XmlMarkup() {
+    public XmlMarkup () {
         super();
         this.target = new StringBuilder();
     }
 
     public XmlMarkup(String target) {
         super();
+        this.target = new StringBuilder(target);
+    }
+
+    public XmlMarkup(Map<Object, Object> options) {
+        super((Integer)MapUtils.stringifyKeysExclamation(options).get("indent"), (Integer)options.get("margin"));
         this.target = new StringBuilder(target);
     }
 
@@ -31,7 +37,7 @@ class XmlMarkup extends XmlBase {
         if (symbolOrString instanceof RubySymbol) {
             return ((RubySymbol) symbolOrString).asJavaString();
         } else {
-            return _escape_quotes(symbolOrString.toString());
+            return _escape_quote(symbolOrString.toString());
         }
     }
 
@@ -46,7 +52,7 @@ class XmlMarkup extends XmlBase {
         for (Object k : order) {
             Object v = attrs.get(k);
             if (v != null) {
-                target.append(" ").append(k.toString()).append("=").append("\"").append(_attr_value(v)).append("\"");
+                target.append(' ').append(k.toString()).append('=').append('\"').append(_attr_value(v)).append('\"');
             }
         }
 
@@ -54,7 +60,7 @@ class XmlMarkup extends XmlBase {
         pendingKeys.removeAll(order);
         for (Object k : pendingKeys) {
             Object v = attrs.get(k);
-            target.append(" ").append(k.toString()).append("=").append("\"").append(_attr_value(v)).append("\"");
+            target.append(' ').append(k.toString()).append('=').append('\"').append(_attr_value(v)).append('\"');
         }
 
 //        def _insert_attributes(attrs, order=[])
@@ -69,10 +75,38 @@ class XmlMarkup extends XmlBase {
 //        end
     }
 
-    public String _escape_quotes(String string) {
-        // I'm maintaining the same methods as Ruby Builder for
-        // consistency; however _escape also takes care of escaping
-        // quotes.
-        return _escape(string);
+    public void _start_tag(Object tagName) {
+        _start_tag(tagName, new HashMap<Object, Object>());
+    }
+    
+    public void _start_tag(Object tagName, Map<Object, Object> attributes) {
+        _start_tag(tagName, attributes, false);
+    }
+
+    @Override
+    public void _start_tag(Object tagName, Map<Object, Object> attributes, boolean endToo) {
+        target.append('<').append(tagName.toString());
+        _insert_attributes(attributes);
+        if(endToo) target.append('/');
+        target.append('>');
+//        def _start_tag(sym, attrs, end_too=false)
+//          @target << "<#{sym}"
+//          _insert_attributes(attrs)
+//          @target << "/" if end_too
+//          @target << ">"
+//        end
+    }
+
+    @Override
+    public void _end_tag(Object tagName) {
+        target.append("</").append(tagName.toString()).append('>');
+//        def _end_tag(sym)
+//          @target << "</#{sym}>"
+//        end
+    }
+
+    @Override
+    public void _text(String text) throws IOException {
+        target.append(text);
     }
 }

@@ -1,6 +1,6 @@
 require 'java'
-require "#{File.dirname(__FILE__)}/jvm/commons-lang-2.4.jar"
-require "#{File.dirname(__FILE__)}/jvm/native_builder.jar"
+require "commons-lang-2.4"
+require "native_builder"
 
 module Builder
   module JVM

@@ -48,12 +48,12 @@ when :java
   # require "rake/javaextensiontask"
   
   desc "Default Task"
-  task :default => ['compile:java', :test_all]
+  task :default => ['compile:java', 'spec:unit', :test_all]
   
   Rake::JavaExtensionTask.new do |ext|
       ext.name = 'native_builder'               # indicate the name of the extension.
       ext.ext_dir = 'ext/java/src'              # search for 'hello_world' inside it.
-      ext.lib_dir = 'lib/builder/jvm'           # put binaries into this folder.
+      ext.lib_dir = 'lib'                       # put binaries into this folder.
       ext.vendored_jars = Dir['ext/java/lib/*.jar']
       # ext.config_script = 'custom_extconf.rb' # use instead of 'extconf.rb' default
       # ext.tmp_dir = 'tmp'                     # temporary folder used during compilation.
@@ -67,13 +67,13 @@ end
 # Test Tasks ---------------------------------------------------------
 
 desc "Run all tests"
-task :test_all => ['spec:unit', :test_units]
+task :test_all => [:test_units]
 task :ta => [:test_all]
 
 task :tu => [:test_units]
 
 namespace :spec do
-  desc "Run all unit specs"
+  desc "Run all unit specs (applicable only when native java extensions are enabled)"
   Spec::Rake::SpecTask.new(:unit) do |task|
     task.spec_files = FileList['spec/builder/**/*_spec.rb']
     # task.spec_opts = ['--options', 'spec/spec.opts']
@@ -339,7 +339,7 @@ def build_xml(xml)
   xml.instruct!
   xml.nodes do
     100.times do |i|
-      xml.node(:id => i.to_s) do
+      xml.node(:id => i) do
         xml.metadata(:name => "Dingo")
         xml.comment!("moo-cow")
         xml.cdata!("yee-haw")

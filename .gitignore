@@ -1,3 +1,7 @@
 tmp/*
 ext/java/.idea
 ext/java/out
+lib/*.jar
+lib/**/*.jar
+*.i??
+nbproject

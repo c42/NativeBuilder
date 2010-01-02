@@ -9,13 +9,54 @@ import static junit.framework.Assert.assertEquals;
 
 public class XmlMarkupTest {
     @Test
+    public void shouldKnowHowToCreateAStartTag() {
+        XmlMarkup builder = new XmlMarkup("");
+        builder._start_tag("ooga");
+        assertEquals("<ooga>", builder.toString());
+    }
+
+    @Test
+    public void shouldKnowHowToCreateAStartTagWithAttributes() {
+        XmlMarkup builder = new XmlMarkup("");
+        HashMap<Object, Object> attributes = new HashMap<Object, Object>();
+        attributes.put("id", new Integer(1));
+        attributes.put("foo", "bar");
+        builder._start_tag("ooga", attributes);
+        assertEquals("<ooga id=\"1\" foo=\"bar\">", builder.toString());
+    }
+
+    @Test
+    public void shouldKnowHowToCreateAClosedStartTag() {
+        XmlMarkup builder = new XmlMarkup("");
+        builder._start_tag("ooga", new HashMap<Object, Object>(), true);
+        assertEquals("<ooga/>", builder.toString());
+    }
+
+    @Test
+    public void shouldKnowHowToCreateAClosedStartTagWithAttributes() {
+        XmlMarkup builder = new XmlMarkup("");
+        HashMap<Object, Object> attributes = new HashMap<Object, Object>();
+        attributes.put("id", new Integer(1));
+        attributes.put("foo", "bar");
+        builder._start_tag("ooga", attributes, true);
+        assertEquals("<ooga id=\"1\" foo=\"bar\"/>", builder.toString());
+    }
+
+    @Test
+    public void shouldKnowHowToCreateAnEndTag(){
+        XmlMarkup builder = new XmlMarkup("");
+        builder._end_tag("ooga");
+        assertEquals("</ooga>", builder.toString());
+    }
+
+    @Test
     public void shouldKnowHowToConvertItselfToAString() {
-        assertEquals(new XmlMarkup("foo").toString(), "foo");
+        assertEquals("foo", new XmlMarkup("foo").toString());
     }
 
     @Test
     public void shouldKnowHowToAppendAStringToTheTarget() {
-        assertEquals(new XmlMarkup("foo").append("bar").toString(), "foobar");
+        assertEquals("foobar", new XmlMarkup("foo").append("bar").toString());
     }
 
     @Test
@@ -41,6 +82,6 @@ public class XmlMarkupTest {
 
     @Test
     public void shouldKnowHowToEscapeXmlCharsAndQuotes() {
-        assertEquals("&quot;&lt;oo&amp;ga&gt;&quot;", new XmlMarkup("")._escape_quotes("\"<oo&ga>\""));
+        assertEquals("&quot;&lt;oo&amp;ga&gt;&quot;", new XmlMarkup("")._escape_quote("\"<oo&ga>\""));
     }
 }
